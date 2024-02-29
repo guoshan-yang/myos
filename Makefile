@@ -37,6 +37,8 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/schedule.o \
 	$(BUILD)/kernel/idt.o \
 	$(BUILD)/kernel/interrupt_handler.o \
+	$(BUILD)/kernel/assert.o \
+	$(BUILD)/kernel/clock.o \
 	$(BUILD)/lib/string.o \
 
 	$(shell mkdir -p $(dir $@))

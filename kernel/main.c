@@ -8,17 +8,21 @@
 #include "../include/task.h"
 #include "../include/idt.h"
 
-char message[] = "hello os !!! \n";
-char buf[1024];
+extern void clock_init();
 
 void kernel_init(){
 
     console_init();
     gdt_init();
     interrupt_init();
-    task_init();
+//    task_init();
+
+    clock_init();
 
     asm volatile(
             "sti");
-    return;
+
+    while (true){
+
+    }
 }
