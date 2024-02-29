@@ -1,13 +1,9 @@
-#include "../include/io.h"
-#include "../include/types.h"
-#include "../include/string.h"
-#include "../include/console.h"
-#include "../include/kernel.h"
-#include "../include/debug.h"
-#include "../include/gdt.h"
-#include "../include/task.h"
-#include "../include/idt.h"
-
+extern void console_init();
+extern void gdt_init();
+extern void interrupt_init();
+extern void clock_init();
+extern void time_init();
+extern void rtc_init();
 extern void clock_init();
 
 void kernel_init(){
@@ -17,12 +13,12 @@ void kernel_init(){
     interrupt_init();
 //    task_init();
 
-    clock_init();
+//    clock_init();
+    time_init();
+    rtc_init();
 
     asm volatile(
             "sti");
 
-    while (true){
-
-    }
+    while (1);
 }

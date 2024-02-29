@@ -39,7 +39,10 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/interrupt_handler.o \
 	$(BUILD)/kernel/assert.o \
 	$(BUILD)/kernel/clock.o \
+	$(BUILD)/kernel/time.o \
+	$(BUILD)/kernel/rtc.o \
 	$(BUILD)/lib/string.o \
+	$(BUILD)/lib/stdlib.o \
 
 	$(shell mkdir -p $(dir $@))
 	ld -m elf_i386 -static $^ -o $@ -Ttext $(ENTRYPOINT)
@@ -79,7 +82,8 @@ qemu: $(BUILD)/hd.img
 	qemu-system-i386 \
 	-m 32M \
 	-boot c \
-	-hda ./build/hd.img
+	-hda ./build/hd.img \
+	-rtc base=localtime \
 
 $(BUILD)/hd.vmdk: $(BUILD)/hd.img
 	qemu-img convert -pO vmdk $< $@
