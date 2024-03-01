@@ -95,6 +95,9 @@ protect_mode:
 
     ; xchg bx, bx; 断点
 
+    mov eax, 0x20220205; 内核魔数
+    mov ebx, ards_count; ards 数量指针
+
     jmp code_selector:0x10000
 
 read_disk:
@@ -207,5 +210,5 @@ loader:
     db "Loader my os...", 10, 13, 0; \n\r
 
 ards_count:
-    dw 0
+    dd 0
 ards_buffer:

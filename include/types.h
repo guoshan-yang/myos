@@ -30,4 +30,7 @@ typedef unsigned long long u64;
 
 typedef u32 time_t;
 
+// 内核魔数，用于校验错误
+#define KERNEL_MAGIC 0x20220205
+
 #endif //MYOS_TYPES_H

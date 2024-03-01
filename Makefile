@@ -41,6 +41,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/clock.o \
 	$(BUILD)/kernel/time.o \
 	$(BUILD)/kernel/rtc.o \
+	$(BUILD)/kernel/memory.o \
 	$(BUILD)/lib/string.o \
 	$(BUILD)/lib/stdlib.o \
 
