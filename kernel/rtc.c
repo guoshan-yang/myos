@@ -9,6 +9,7 @@
 #include "../include/time.h"
 #include "../include/assert.h"
 #include "../include/stdlib.h"
+#include "../include/rtc.h"
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 

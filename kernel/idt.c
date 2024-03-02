@@ -6,6 +6,7 @@
 #include "../include/kernel.h"
 #include "../include/debug.h"
 #include "../include/assert.h"
+#include "../include/io.h"
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 // #define LOGK(fmt, args...)
