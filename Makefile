@@ -42,6 +42,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/time.o \
 	$(BUILD)/kernel/rtc.o \
 	$(BUILD)/kernel/memory.o \
+	$(BUILD)/lib/bitmap.o \
 	$(BUILD)/lib/string.o \
 	$(BUILD)/lib/stdlib.o \
 
@@ -70,7 +71,7 @@ clean:
 	$(shell rm -rf ${BUILD})
 
 bochs: $(BUILD)/hd.img
-	bochs -q -f bochsrc
+	bochs -q -f bochsrc -unlock
 
 qemu-gdb: $(BUILD)/hd.img
 	qemu-system-i386 \

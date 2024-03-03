@@ -18,7 +18,7 @@ void kernel_init(){
 //    time_init();
 //    rtc_init();
 
-    memory_test();
+    bitmap_tests();
 
     asm volatile(
             "sti");
