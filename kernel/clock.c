@@ -6,6 +6,7 @@
 #include "../include/idt.h"
 #include "../include/debug.h"
 #include "../include/assert.h"
+#include "../include/task.h"
 
 #define PIT_CHAN0_REG 0X40
 #define PIT_CHAN2_REG 0X42
@@ -26,7 +27,17 @@ void clock_handler(int vector)
     send_eoi(vector);
 
     jiffies++;
-    DEBUGK("clock jiffies %d ...\n", jiffies);
+//    DEBUGK("clock jiffies %d ...\n", jiffies);
+
+    task_t *task = running_task();
+    assert(task->magic == KERNEL_MAGIC);
+
+    task->jiffies = jiffies;
+    task->ticks--;
+    if (!task->ticks)
+    {
+        schedule();
+    }
 }
 
 void pit_init()

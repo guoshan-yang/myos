@@ -6,22 +6,23 @@ extern void clock_init();
 extern void memory_map_init();
 extern void mapping_init();
 
+#include "../include/idt.h"
+
 void kernel_init(){
 
     interrupt_init();
 //    task_init();
 
-//    clock_init();
+    clock_init();
 
     memory_map_init();
     mapping_init();
 //    time_init();
 //    rtc_init();
 
-    memory_test();
+    task_init();
 
-    asm volatile(
-            "sti");
+    set_interrupt_state(true);
 
     while (1);
 }
