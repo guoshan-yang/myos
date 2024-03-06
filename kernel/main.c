@@ -11,13 +11,13 @@ extern void syscall_init();
 
 void kernel_init(){
 
-    interrupt_init();
-//    task_init();
-
-    clock_init();
 
     memory_map_init();
     mapping_init();
+
+    interrupt_init();
+
+    clock_init();
 //    time_init();
 //    rtc_init();
 
@@ -25,7 +25,5 @@ void kernel_init(){
 
     syscall_init();
 
-    list_test();
-
-//    set_interrupt_state(true);
+    set_interrupt_state(true);
 }

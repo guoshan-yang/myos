@@ -6,6 +6,7 @@
 #define MYOS_TASK_H
 
 #include "types.h"
+#include "list.h"
 
 #define KERNEL_USER 0
 #define NORMAL_USER 1
@@ -28,6 +29,7 @@ typedef enum task_state_t
 typedef struct task_t
 {
     u32 *stack;              // 内核栈
+    list_node_t node;
     task_state_t state;      // 任务状态
     u32 priority;            // 任务优先级
     u32 ticks;               // 剩余时间片
@@ -52,5 +54,7 @@ task_t *running_task();
 void schedule();
 
 void task_yield();
+void task_block(task_t *task, list_t *blist, task_state_t state);
+void task_unblock(task_t *task);
 
 #endif //MYOS_TASK_H
