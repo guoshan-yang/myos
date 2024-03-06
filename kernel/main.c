@@ -25,5 +25,7 @@ void kernel_init(){
 
     syscall_init();
 
-    set_interrupt_state(true);
+    list_test();
+
+//    set_interrupt_state(true);
 }
