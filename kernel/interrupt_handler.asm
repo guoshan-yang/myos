@@ -187,7 +187,6 @@ syscall_handler:
     pusha
 
     push 0x80; 向中断处理函数传递参数中断向量 vector
-    xchg bx, bx
 
     push edx; 第三个参数
     push ecx; 第二个参数
