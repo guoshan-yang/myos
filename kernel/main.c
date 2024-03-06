@@ -5,6 +5,7 @@ extern void rtc_init();
 extern void clock_init();
 extern void memory_map_init();
 extern void mapping_init();
+extern void syscall_init();
 
 #include "../include/idt.h"
 
@@ -20,9 +21,9 @@ void kernel_init(){
 //    time_init();
 //    rtc_init();
 
-    task_init();
+//    task_init();
 
-    set_interrupt_state(true);
+    syscall_init();
 
-    while (1);
+//    set_interrupt_state(true);
 }
