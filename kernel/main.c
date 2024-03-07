@@ -6,7 +6,7 @@ extern void clock_init();
 extern void memory_map_init();
 extern void mapping_init();
 extern void syscall_init();
-
+extern void task_init();
 #include "../include/idt.h"
 
 void kernel_init(){

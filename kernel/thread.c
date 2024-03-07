@@ -5,6 +5,7 @@
 #include "../include/idt.h"
 #include "../include/syscall.h"
 #include "../include/debug.h"
+#include "../include/task.h"
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 
@@ -14,7 +15,7 @@ void idle_thread()
     u32 counter = 0;
     while (true)
     {
-        LOGK("idle task.... %d\n", counter++);
+//        LOGK("idle task.... %d\n", counter++);
         asm volatile(
                 "sti\n" // 开中断
                 "hlt\n" // 关闭 CPU，进入暂停状态，等待外中断的到来
@@ -23,13 +24,31 @@ void idle_thread()
     }
 }
 
+extern task_t *running_task();
+
 void init_thread()
 {
     set_interrupt_state(true);
+    u32 counter = 0;
 
     while (true)
     {
-        LOGK("init task....\n");
-        test();
+        task_t* task = running_task();
+        LOGK("init task %d....%d...\n", counter++, task->jiffies);
+        sleep(200);
+    }
+}
+
+void test_thread()
+{
+    set_interrupt_state(true);
+    u32 counter = 0;
+
+
+    while (true)
+    {
+        task_t* task = running_task();
+        LOGK("test task %d....%d...\n", counter++, task->jiffies);
+        sleep(100);
     }
 }

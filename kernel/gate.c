@@ -60,6 +60,7 @@ void syscall_init()
     }
 
     syscall_table[SYS_NR_TEST] = sys_test;
+    syscall_table[SYS_NR_SLEEP] = task_sleep;
     syscall_table[SYS_NR_YIELD] = task_yield;
 }
 
