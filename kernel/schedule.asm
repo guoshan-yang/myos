@@ -4,7 +4,6 @@ section .text
 
 global task_switch
 task_switch:
-    xchg bx, bx; 断点
     push ebp
     mov ebp, esp
 
