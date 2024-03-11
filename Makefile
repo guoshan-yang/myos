@@ -1,6 +1,8 @@
 BUILD:=./build
+SRC:=.
 HD_IMG_NAME:= "hd.img"
-ENTRYPOINT:=0x10000
+MULTIBOOT2:=0x10000
+ENTRYPOINT:=$(shell python -c "print(f'0x{$(MULTIBOOT2) + 64:x}')")
 
 CFLAGS:= -m32 # 32 位的程序
 CFLAGS+= -fno-builtin	# 不需要 gcc 内置函数
@@ -24,6 +26,12 @@ ${BUILD}/%.o: %.asm
 $(BUILD)/%.o: %.c
 	$(shell mkdir -p $(dir $@))
 	gcc $(CFLAGS) $(DEBUG) -c $< -o $@
+
+LDFLAGS:= -m elf_i386 \
+		-static \
+		-Ttext $(ENTRYPOINT)\
+		--section-start=.multiboot2=$(MULTIBOOT2)
+LDFLAGS:=$(strip ${LDFLAGS})
 
 $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/main.o \
@@ -52,7 +60,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/lib/list.o \
 
 	$(shell mkdir -p $(dir $@))
-	ld -m elf_i386 -static $^ -o $@ -Ttext $(ENTRYPOINT)
+	ld ${LDFLAGS} $^ -o $@
 
 $(BUILD)/system.bin: $(BUILD)/kernel/kernel.bin
 	objcopy -O binary $< $@
@@ -70,27 +78,51 @@ $(BUILD)/hd.img: ${BUILD}/boot/boot.bin ${BUILD}/boot/loader.bin \
 	dd if=${BUILD}/boot/loader.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 seek=1 count=2 conv=notrunc
 	dd if=$(BUILD)/system.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 count=200 seek=3 conv=notrunc
 
+$(BUILD)/kernel.iso : $(BUILD)/kernel/kernel.bin $(SRC)/grub/grub.cfg
+
+# 检测内核文件是否合法
+	grub-file --is-x86-multiboot2 $<
+# 创建 iso 目录
+	mkdir -p $(BUILD)/iso/boot/grub
+# 拷贝内核文件
+	cp $< $(BUILD)/iso/boot
+# 拷贝 grub 配置文件
+	cp $(SRC)/grub/grub.cfg $(BUILD)/iso/boot/grub
+# 生成 iso 文件
+	grub-mkrescue -o $@ $(BUILD)/iso
+
 test: ${BUILD}/kernel/entry_kernel.o
 
 clean:
 	$(shell rm -rf ${BUILD})
 
 bochs: $(BUILD)/hd.img
-	bochs -q -f bochsrc -unlock
+	bochs -q -f ./bochs/bochsrc -unlock
+
+bochs-grub: $(BUILD)/kernel.iso
+	bochs -q -f ./bochs/bochsrc.grub -unlock
+
+QEMU:= qemu-system-i386 \
+	-m 32M \
+	-boot c \
+	-rtc base=localtime \
+
+QEMU_DISK:=-boot c \
+	-drive file=$(BUILD)/hd.img,if=ide,index=0,media=disk,format=raw \
+
+QEMU_CDROM:=-boot d \
+	-drive file=$(BUILD)/kernel.iso,media=cdrom \
+
+QEMU_DEBUG:= -s -S
 
 qemu-gdb: $(BUILD)/hd.img
-	qemu-system-i386 \
-	-s -S \
-	-m 32M \
-	-boot c \
-	-hda ./build/hd.img
+	$(QEMU) $(QEMU_DISK) $(QEMU_DEBUG)
 
 qemu: $(BUILD)/hd.img
-	qemu-system-i386 \
-	-m 32M \
-	-boot c \
-	-hda ./build/hd.img \
-	-rtc base=localtime \
+	$(QEMU) $(QEMU_DISK)
+
+qemu-grub: $(BUILD)/kernel.iso
+	$(QEMU) $(QEMU_CDROM)
 
 $(BUILD)/hd.vmdk: $(BUILD)/hd.img
 	qemu-img convert -pO vmdk $< $@
