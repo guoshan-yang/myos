@@ -30,15 +30,22 @@ extern task_t *running_task();
 
 lock_t lock;
 
+extern u32 keyboard_read(char *buf, u32 count);
+
 void init_thread()
 {
     set_interrupt_state(true);
     u32 counter = 0;
 
+    char ch;
     while (true)
     {
-        // LOGK("init task %d....\n", counter++);
-        sleep(500);
+        bool intr = interrupt_disable();
+        keyboard_read(&ch, 1);
+        // LOGK("%c\n", ch);
+        printk("%c", ch);
+
+        set_interrupt_state(intr);
     }
 }
 
