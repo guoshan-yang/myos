@@ -27,21 +27,22 @@ void idle_thread()
 extern task_t *running_task();
 
 #include "../include/mutex.h"
-spinlock_t lock;
+
+lock_t lock;
 
 void init_thread()
 {
-    spin_init(&lock);
+    lock_init(&lock);
 
     set_interrupt_state(true);
     u32 counter = 0;
 
     while (true)
     {
-        spin_lock(&lock);
+        lock_acquire(&lock);
         task_t* task = running_task();
         LOGK("init task %d....%d...\n", counter++, task->jiffies);
-        spin_unlock(&lock);
+        lock_release(&lock);
     }
 }
 
@@ -53,10 +54,10 @@ void test_thread()
 
     while (true)
     {
-        spin_lock(&lock);
+        lock_acquire(&lock);
         task_t* task = running_task();
         LOGK("test task %d....%d...\n", counter++, task->jiffies);
         sleep(100);
-        spin_unlock(&lock);
+        lock_release(&lock);
     }
 }
