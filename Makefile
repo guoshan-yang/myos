@@ -53,6 +53,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/gate.o \
 	$(BUILD)/kernel/thread.o \
 	$(BUILD)/kernel/mutex.o \
+	$(BUILD)/kernel/keyboard.o \
 	$(BUILD)/lib/bitmap.o \
 	$(BUILD)/lib/string.o \
 	$(BUILD)/lib/stdlib.o \

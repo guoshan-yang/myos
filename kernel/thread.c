@@ -32,17 +32,13 @@ lock_t lock;
 
 void init_thread()
 {
-    lock_init(&lock);
-
     set_interrupt_state(true);
     u32 counter = 0;
 
     while (true)
     {
-        lock_acquire(&lock);
-        task_t* task = running_task();
-        LOGK("init task %d....%d...\n", counter++, task->jiffies);
-        lock_release(&lock);
+        // LOGK("init task %d....\n", counter++);
+        sleep(500);
     }
 }
 
@@ -51,13 +47,9 @@ void test_thread()
     set_interrupt_state(true);
     u32 counter = 0;
 
-
     while (true)
     {
-        lock_acquire(&lock);
-        task_t* task = running_task();
-        LOGK("test task %d....%d...\n", counter++, task->jiffies);
-        sleep(100);
-        lock_release(&lock);
+        // LOGK("test task %d....\n", counter++);
+        sleep(500);
     }
 }
