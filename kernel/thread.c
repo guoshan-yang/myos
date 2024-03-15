@@ -6,6 +6,7 @@
 #include "../include/syscall.h"
 #include "../include/debug.h"
 #include "../include/task.h"
+#include "../include/stdio.h"
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 
@@ -28,9 +29,12 @@ static void real_init_thread()
 {
     u32 counter = 0;
     char ch;
+
+//    printf("user mode ");
     while (true)
     {
         sleep(100);
+        printf("user mode");
     }
 }
 

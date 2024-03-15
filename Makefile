@@ -59,6 +59,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/lib/stdlib.o \
 	$(BUILD)/lib/syscall.o \
 	$(BUILD)/lib/list.o \
+	$(BUILD)/lib/printf.o \
 	$(BUILD)/lib/fifo.o \
 
 	$(shell mkdir -p $(dir $@))

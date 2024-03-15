@@ -153,11 +153,12 @@ static void command_del()
     *(u16 *)pos = erase;
 }
 
-void console_write(char *buf, u32 count)
+int32 console_write(char *buf, u32 count)
 {
-     bool intr = interrupt_disable();
+    bool intr = interrupt_disable();
     char ch;
-    while (count--)
+    int32 nr = 0;
+    while (nr++ < count)
     {
         ch = *buf++;
         switch (ch)
@@ -205,8 +206,8 @@ void console_write(char *buf, u32 count)
         }
     }
     set_cursor();
-
-     set_interrupt_state(intr);
+    set_interrupt_state(intr);
+    return nr;
 }
 
 void console_init()

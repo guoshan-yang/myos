@@ -9,6 +9,6 @@
 
 void console_init();
 void console_clear();
-void console_write(char *buf, u32 count);
+int32 console_write(char *buf, u32 count);
 
 #endif //MYOS_CONSOLE_H
