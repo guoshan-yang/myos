@@ -41,6 +41,38 @@ typedef struct task_t
     u32 magic;               // 内核魔数，用于检测栈溢出
 } task_t;
 
+// 中断帧
+typedef struct intr_frame_t
+{
+    u32 vector;
+
+    u32 edi;
+    u32 esi;
+    u32 ebp;
+    // 虽然 pushad 把 esp 也压入，但 esp 是不断变化的，所以会被 popad 忽略
+    u32 esp_dummy;
+
+    u32 ebx;
+    u32 edx;
+    u32 ecx;
+    u32 eax;
+
+    u32 gs;
+    u32 fs;
+    u32 es;
+    u32 ds;
+
+    u32 vector0;
+
+    u32 error;
+
+    u32 eip;
+    u32 cs;
+    u32 eflags;
+    u32 esp;
+    u32 ss;
+} intr_frame_t;
+
 typedef struct task_frame_t
 {
     u32 edi;
@@ -59,5 +91,7 @@ void task_unblock(task_t *task);
 
 void task_sleep(u32 ms);
 void task_wakeup();
+
+void task_to_user_mode(target_t target);
 
 #endif //MYOS_TASK_H
