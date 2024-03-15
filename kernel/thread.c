@@ -7,6 +7,7 @@
 #include "../include/debug.h"
 #include "../include/task.h"
 #include "../include/stdio.h"
+#include "../include/arena.h"
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 
@@ -25,7 +26,7 @@ void idle_thread()
     }
 }
 
-static void real_init_thread()
+static void user_init_thread()
 {
     u32 counter = 0;
     char ch;
@@ -33,8 +34,8 @@ static void real_init_thread()
 //    printf("user mode ");
     while (true)
     {
-        sleep(100);
-        printf("user mode");
+        sleep(1000);
+        printf("user mode \n");
     }
 }
 
@@ -49,7 +50,7 @@ extern u32 keyboard_read(char *buf, u32 count);
 void init_thread()
 {
     char temp[100]; // 为栈顶有足够的空间
-    task_to_user_mode(real_init_thread);
+    task_to_user_mode(user_init_thread);
 }
 
 void test_thread()
@@ -59,7 +60,18 @@ void test_thread()
 
     while (true)
     {
-        // LOGK("test task %d....\n", counter++);
-        sleep(500);
+        void *ptr = kmalloc(1200);
+        LOGK("kmalloc 0x%p....\n", ptr);
+        kfree(ptr);
+
+        ptr = kmalloc(1024);
+        LOGK("kmalloc 0x%p....\n", ptr);
+        kfree(ptr);
+
+        ptr = kmalloc(54);
+        LOGK("kmalloc 0x%p....\n", ptr);
+        kfree(ptr);
+
+        sleep(5000);
     }
 }

@@ -9,6 +9,7 @@ extern void syscall_init();
 extern void task_init();
 extern void keyboard_init();
 extern void tss_init();
+extern void arena_init();
 #include "../include/idt.h"
 
 void kernel_init(){
@@ -16,6 +17,7 @@ void kernel_init(){
     tss_init();
     memory_map_init();
     mapping_init();
+    arena_init();
 
     interrupt_init();
 
