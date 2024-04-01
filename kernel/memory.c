@@ -182,21 +182,22 @@ static void put_page(u32 addr) {
     LOGK("PUT page 0x%p\n", addr);
 }
 
-// 得到 cr3 寄存器
-u32 inline
+// 得到 cr2 寄存器
+u32 get_cr2() {
+    // 直接将 mov eax, cr2，返回值在 eax 中
+    asm volatile("movl %cr2, %eax\n");
+}
 
-get_cr3() {
+// 得到 cr3 寄存器
+u32 get_cr3() {
     // 直接将 mov eax, cr3，返回值在 eax 中
     asm volatile("movl %cr3, %eax\n");
 }
 
 // 设置 cr3 寄存器，参数是页目录的地址
-void inline
-set_cr3(u32
-pde)
-{
-ASSERT_PAGE(pde);
-asm volatile("movl %%eax, %%cr3\n"::"a"(pde));
+void set_cr3(u32 pde) {
+    ASSERT_PAGE(pde);
+    asm volatile("movl %%eax, %%cr3\n"::"a"(pde));
 }
 
 // 将 cr0 寄存器最高位 PE 置为 1，启用分页
@@ -264,18 +265,16 @@ static page_entry_t *get_pde() {
 }
 
 // 获取虚拟地址 vaddr 对应的页表
-static page_entry_t *get_pte(u32 vaddr, bool create)
-{
+static page_entry_t *get_pte(u32 vaddr, bool create) {
     page_entry_t *pde = get_pde();
     u32 idx = DIDX(vaddr);
     page_entry_t *entry = &pde[idx];
 
     assert(create || (!create && entry->present));
 
-    page_entry_t *table = (page_entry_t *)(PDE_MASK | (idx << 12));
+    page_entry_t *table = (page_entry_t *) (PDE_MASK | (idx << 12));
 
-    if (!entry->present)
-    {
+    if (!entry->present) {
         LOGK("Get and create page table entry for 0x%p\n", vaddr);
         u32 page = get_page();
         entry_init(entry, IDX(page));
@@ -334,8 +333,7 @@ void free_kpage(u32 vaddr, u32 count) {
 }
 
 // 将 vaddr 映射物理内存
-void link_page(u32 vaddr)
-{
+void link_page(u32 vaddr) {
     ASSERT_PAGE(vaddr);
 
     page_entry_t *pte = get_pte(vaddr, true);
@@ -346,8 +344,7 @@ void link_page(u32 vaddr)
     u32 index = IDX(vaddr);
 
     // 如果页面已存在，则直接返回
-    if (entry->present)
-    {
+    if (entry->present) {
         assert(bitmap_test(map, index));
         return;
     }
@@ -363,8 +360,7 @@ void link_page(u32 vaddr)
 }
 
 // 去掉 vaddr 对应的物理内存映射
-void unlink_page(u32 vaddr)
-{
+void unlink_page(u32 vaddr) {
     ASSERT_PAGE(vaddr);
 
     page_entry_t *pte = get_pte(vaddr, true);
@@ -374,8 +370,7 @@ void unlink_page(u32 vaddr)
     bitmap_t *map = task->vmap;
     u32 index = IDX(vaddr);
 
-    if (!entry->present)
-    {
+    if (!entry->present) {
         assert(!bitmap_test(map, index));
         return;
     }
@@ -388,9 +383,57 @@ void unlink_page(u32 vaddr)
     u32 paddr = PAGE(entry->index);
 
     DEBUGK("UNLINK from 0x%p to 0x%p\n", vaddr, paddr);
-    if (memory_map[entry->index] == 1)
-    {
-        put_page(paddr);
-    }
+    put_page(paddr);
     flush_tlb(vaddr);
+}
+
+// 拷贝当前页目录
+page_entry_t *copy_pde() {
+    task_t *task = running_task();
+    page_entry_t *pde = (page_entry_t *) alloc_kpage(1); // todo free
+    memcpy(pde, (void *) task->pde, PAGE_SIZE);
+
+    // 将最后一个页表指向页目录自己，方便修改
+    page_entry_t *entry = &pde[1023];
+    entry_init(entry, IDX(pde));
+
+    return pde;
+}
+
+typedef struct page_error_code_t {
+    u8 present: 1;
+    u8 write: 1;
+    u8 user: 1;
+    u8 reserved0: 1;
+    u8 fetch: 1;
+    u8 protection: 1;
+    u8 shadow: 1;
+    u16 reserved1: 8;
+    u8 sgx: 1;
+    u16 reserved2;
+} _packed page_error_code_t;
+
+void page_fault(
+        u32 vector,
+        u32 edi, u32 esi, u32 ebp, u32 esp,
+        u32 ebx, u32 edx, u32 ecx, u32 eax,
+        u32 gs, u32 fs, u32 es, u32 ds,
+        u32 vector0, u32 error, u32 eip, u32 cs, u32 eflags) {
+    assert(vector == 0xe);
+    u32 vaddr = get_cr2();
+    LOGK("fault address 0x%p\n", vaddr);
+
+    page_error_code_t *code = (page_error_code_t *) &error;
+    task_t *task = running_task();
+
+    assert(KERNEL_MEMORY_SIZE <= vaddr < USER_STACK_TOP);
+
+    if (!code->present && (vaddr > USER_STACK_BOTTOM)) {
+        u32 page = PAGE(IDX(vaddr));
+        link_page(page);
+        // BMB;
+        return;
+    }
+
+    panic("page fault!!!");
 }
