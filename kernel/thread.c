@@ -33,10 +33,20 @@ static void user_init_thread()
 
     while (true)
     {
-        // test();
-        printf("init thread %d %d %d...\n", getpid(), getppid(), counter++);
-        // printf("task is in user mode %d\n", counter++);
-        sleep(1000);
+        pid_t pid = fork();
+
+        if (pid)
+        {
+            printf("fork after parent %d, %d, %d\n", pid, getpid(), getppid());
+        }
+        else
+        {
+            printf("fork after child %d, %d, %d\n", pid, getpid(), getppid());
+        }
+        while(true){
+
+        }
+        sleep(100);
     }
 }
 
@@ -61,7 +71,7 @@ void test_thread()
 
     while (true)
     {
-        printf("test thread %d %d %d...\n", getpid(), getppid(), counter++);
+//        printf("test thread %d %d %d...\n", getpid(), getppid(), counter++);
         // LOGK("test task %d....\n", counter++);
         // BMB;
         sleep(2000);
