@@ -42,11 +42,9 @@ static void user_init_thread()
         else
         {
             printf("fork after child %d, %d, %d\n", pid, getpid(), getppid());
+            exit(0);
         }
-        while(true){
-
-        }
-        sleep(100);
+        sleep(1000);
     }
 }
 
