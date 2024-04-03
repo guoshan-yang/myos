@@ -22,7 +22,7 @@ void kernel_init(){
     interrupt_init();
 
     clock_init();
-//    time_init();
+    time_init();
 //    rtc_init();
 
     keyboard_init();

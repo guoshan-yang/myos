@@ -93,3 +93,8 @@ int32 brk(void *addr)
 {
     return _syscall1(SYS_NR_BRK, (u32)addr);
 }
+
+time_t time()
+{
+    return _syscall0(SYS_NR_TIME);
+}
