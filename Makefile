@@ -1,6 +1,7 @@
 BUILD:=./build
 SRC:=.
 HD_IMG_NAME:= "hd.img"
+SLAVE_IMG_NAME:= "slave.img"
 MULTIBOOT2:=0x10000
 ENTRYPOINT:=$(shell python -c "print(f'0x{$(MULTIBOOT2) + 64:x}')")
 
@@ -79,6 +80,7 @@ $(BUILD)/hd.img: ${BUILD}/boot/boot.bin ${BUILD}/boot/loader.bin \
 
 	$(shell rm -rf $(BUILD)/$(HD_IMG_NAME))
 	bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(HD_IMG_NAME)
+	bximage -q -hd=32 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(SLAVE_IMG_NAME)
 	dd if=${BUILD}/boot/boot.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 seek=0 count=1 conv=notrunc
 	dd if=${BUILD}/boot/loader.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 seek=1 count=2 conv=notrunc
 	dd if=$(BUILD)/system.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 count=200 seek=3 conv=notrunc
@@ -114,6 +116,7 @@ QEMU:= qemu-system-i386 \
 
 QEMU_DISK:=-boot c \
 	-drive file=$(BUILD)/hd.img,if=ide,index=0,media=disk,format=raw \
+	-drive file=$(BUILD)/slave.img,if=ide,index=1,media=disk,format=raw \
 
 QEMU_CDROM:=-boot d \
 	-drive file=$(BUILD)/kernel.iso,media=cdrom \

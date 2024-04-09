@@ -128,6 +128,15 @@ static u32 ide_busy_wait(ide_ctrl_t *ctrl, u8 mask)
     }
 }
 
+// 重置硬盘控制器
+static void ide_reset_controller(ide_ctrl_t *ctrl)
+{
+    out_byte(ctrl->iobase + IDE_CONTROL, IDE_CTRL_SRST);
+    ide_busy_wait(ctrl, IDE_SR_NULL);
+    out_byte(ctrl->iobase + IDE_CONTROL, ctrl->control);
+    ide_busy_wait(ctrl, IDE_SR_NULL);
+}
+
 // 选择磁盘
 static void ide_select_drive(ide_disk_t *disk)
 {
@@ -260,14 +269,72 @@ int ide_pio_write(ide_disk_t *disk, void *buf, u8 count, idx_t lba)
     return 0;
 }
 
+static void ide_swap_pairs(char *buf, u32 len)
+{
+    for (size_t i = 0; i < len; i += 2)
+    {
+        register char ch = buf[i];
+        buf[i] = buf[i + 1];
+        buf[i + 1] = ch;
+    }
+    buf[len - 1] = '\0';
+}
+
+static u32 ide_identify(ide_disk_t *disk, u16 *buf)
+{
+    LOGK("identifing disk %s...\n", disk->name);
+    lock_acquire(&disk->ctrl->lock);
+    ide_select_drive(disk);
+
+    // ide_select_sector(disk, 0, 0);
+
+    out_byte(disk->ctrl->iobase + IDE_COMMAND, IDE_CMD_IDENTIFY);
+
+    ide_busy_wait(disk->ctrl, IDE_SR_NULL);
+
+    ide_params_t *params = (ide_params_t *)buf;
+
+    ide_pio_read_sector(disk, buf);
+
+    LOGK("disk %s total lba %d\n", disk->name, params->total_lba);
+
+    u32 ret = EOF;
+    if (params->total_lba == 0)
+    {
+        goto rollback;
+    }
+
+    ide_swap_pairs(params->serial, sizeof(params->serial));
+    LOGK("disk %s serial number %s\n", disk->name, params->serial);
+
+    ide_swap_pairs(params->firmware, sizeof(params->firmware));
+    LOGK("disk %s firmware version %s\n", disk->name, params->firmware);
+
+    ide_swap_pairs(params->model, sizeof(params->model));
+    LOGK("disk %s model number %s\n", disk->name, params->model);
+
+    disk->total_lba = params->total_lba;
+    disk->cylinders = params->cylinders;
+    disk->heads = params->heads;
+    disk->sectors = params->sectors;
+    ret = 0;
+
+    rollback:
+    lock_release(&disk->ctrl->lock);
+    return ret;
+}
+
+// ide 控制器初始化
 static void ide_ctrl_init()
 {
+    u16 *buf = (u16 *)alloc_kpage(1);
     for (size_t cidx = 0; cidx < IDE_CTRL_NR; cidx++)
     {
         ide_ctrl_t *ctrl = &controllers[cidx];
         sprintf(ctrl->name, "ide%u", cidx);
         lock_init(&ctrl->lock);
         ctrl->active = NULL;
+        ctrl->waiter = NULL;
 
         if (cidx) // 从通道
         {
@@ -277,6 +344,7 @@ static void ide_ctrl_init()
         {
             ctrl->iobase = IDE_IOBASE_PRIMARY;
         }
+        ctrl->control = in_byte(ctrl->iobase + IDE_CONTROL);
 
         for (size_t didx = 0; didx < IDE_DISK_NR; didx++)
         {
@@ -293,10 +361,13 @@ static void ide_ctrl_init()
                 disk->master = true;
                 disk->selector = IDE_LBA_MASTER;
             }
+            ide_identify(disk, buf);
         }
     }
+    free_kpage((u32)buf, 1);
 }
 
+// ide 硬盘初始化
 void ide_init()
 {
     LOGK("ide init...\n");
