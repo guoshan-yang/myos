@@ -32,7 +32,6 @@ data_selector equ (2 << 3)
 section .text
 global _start
 _start:
-    ; call kernel_init
 
     push ebx; ards_count
     push eax; magic
