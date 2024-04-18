@@ -77,15 +77,18 @@ $(BUILD)/system.map: $(BUILD)/kernel/kernel.bin
 $(BUILD)/hd.img: ${BUILD}/boot/boot.bin ${BUILD}/boot/loader.bin \
 		$(BUILD)/system.bin \
     	$(BUILD)/system.map \
+    	$(SRC)/config/master.fdisk \
 
 	$(shell rm -rf $(BUILD)/$(HD_IMG_NAME))
-	bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(HD_IMG_NAME)
-	bximage -q -hd=32 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(SLAVE_IMG_NAME)
+	yes | bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(HD_IMG_NAME)
+	yes | bximage -q -hd=32 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(SLAVE_IMG_NAME)
 	dd if=${BUILD}/boot/boot.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 seek=0 count=1 conv=notrunc
 	dd if=${BUILD}/boot/loader.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 seek=1 count=2 conv=notrunc
 	dd if=$(BUILD)/system.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 count=200 seek=3 conv=notrunc
+	# 对硬盘进行分区
+	sfdisk $@ < $(SRC)/config/master.fdisk
 
-$(BUILD)/kernel.iso : $(BUILD)/kernel/kernel.bin $(SRC)/grub/grub.cfg
+$(BUILD)/kernel.iso : $(BUILD)/kernel/kernel.bin $(SRC)/config/grub.cfg
 
 # 检测内核文件是否合法
 	grub-file --is-x86-multiboot2 $<
@@ -94,7 +97,7 @@ $(BUILD)/kernel.iso : $(BUILD)/kernel/kernel.bin $(SRC)/grub/grub.cfg
 # 拷贝内核文件
 	cp $< $(BUILD)/iso/boot
 # 拷贝 grub 配置文件
-	cp $(SRC)/grub/grub.cfg $(BUILD)/iso/boot/grub
+	cp $(SRC)/config/grub.cfg $(BUILD)/iso/boot/grub
 # 生成 iso 文件
 	grub-mkrescue -o $@ $(BUILD)/iso
 
