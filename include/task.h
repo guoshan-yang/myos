@@ -74,7 +74,7 @@ typedef struct intr_frame_t
     u32 eip;
     u32 cs;
     u32 eflags;
-    u32 esp;
+    u32  esp;
     u32 ss;
 } intr_frame_t;
 
