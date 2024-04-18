@@ -76,9 +76,7 @@ void test_thread()
 
     while (true)
     {
-//        printf("test thread %d %d %d...\n", getpid(), getppid(), counter++);
-        // LOGK("test task %d....\n", counter++);
-        // BMB;
-        sleep(2000);
+        test();
+        sleep(100);
     }
 }

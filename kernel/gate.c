@@ -10,6 +10,7 @@
 #include "../include/task.h"
 #include "../include/console.h"
 #include "../include/memory.h"
+#include "../include/device.h"
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 
@@ -35,16 +36,28 @@ task_t *task = NULL;
 
 static u32 sys_test()
 {
+    char ch;
+    device_t *device;
+
+    device = device_find(DEV_KEYBOARD, 0);
+    assert(device);
+    device_read(device->dev, &ch, 1, 0, 0);
+
+    device = device_find(DEV_CONSOLE, 0);
+    assert(device);
+    device_write(device->dev, &ch, 1, 0, 0);
 
     return 255;
 }
+
+extern int32 console_write();
 
 extern void task_yield();
 
 int32 sys_write(fd_t fd, char *buf, u32 len) {
     if (fd == stdout || fd == stderr)
     {
-        return console_write(buf, len);
+        return console_write(NULL, buf, len);
     }
     // todo
     panic("write!!!!");

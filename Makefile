@@ -57,6 +57,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/keyboard.o \
 	$(BUILD)/kernel/arena.o \
 	$(BUILD)/kernel/ide.o \
+	$(BUILD)/kernel/device.o \
 	$(BUILD)/lib/bitmap.o \
 	$(BUILD)/lib/string.o \
 	$(BUILD)/lib/stdlib.o \
