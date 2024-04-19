@@ -76,19 +76,7 @@ $(BUILD)/system.bin: $(BUILD)/kernel/kernel.bin
 $(BUILD)/system.map: $(BUILD)/kernel/kernel.bin
 	nm $< | sort > $@
 
-$(BUILD)/hd.img: ${BUILD}/boot/boot.bin ${BUILD}/boot/loader.bin \
-		$(BUILD)/system.bin \
-    	$(BUILD)/system.map \
-    	$(SRC)/config/master.fdisk \
-
-	$(shell rm -rf $(BUILD)/$(HD_IMG_NAME))
-	yes | bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(HD_IMG_NAME)
-	yes | bximage -q -hd=32 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(SLAVE_IMG_NAME)
-	dd if=${BUILD}/boot/boot.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 seek=0 count=1 conv=notrunc
-	dd if=${BUILD}/boot/loader.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 seek=1 count=2 conv=notrunc
-	dd if=$(BUILD)/system.bin of=$(BUILD)/$(HD_IMG_NAME) bs=512 count=200 seek=3 conv=notrunc
-	# 对硬盘进行分区
-	sfdisk $@ < $(SRC)/config/master.fdisk
+include image.mk
 
 $(BUILD)/kernel.iso : $(BUILD)/kernel/kernel.bin $(SRC)/config/grub.cfg
 
@@ -108,7 +96,7 @@ test: ${BUILD}/kernel/entry_kernel.o
 clean:
 	$(shell rm -rf ${BUILD})
 
-bochs: $(BUILD)/hd.img
+bochs: $(IMAGES)
 	bochs -q -f ./bochs/bochsrc -unlock
 
 bochs-grub: $(BUILD)/kernel.iso
@@ -128,10 +116,10 @@ QEMU_CDROM:=-boot d \
 
 QEMU_DEBUG:= -s -S
 
-qemu-gdb: $(BUILD)/hd.img
+qemu-gdb: $(IMAGES)
 	$(QEMU) $(QEMU_DISK) $(QEMU_DEBUG)
 
-qemu: $(BUILD)/hd.img
+qemu: $(IMAGES)
 	$(QEMU) $(QEMU_DISK)
 
 qemu-grub: $(BUILD)/kernel.iso
