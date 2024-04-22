@@ -48,7 +48,7 @@ $(BUILD)/slave.img: $(SRC)/config/slave.fdisk
 	# 挂载设备
 	sudo losetup /dev/loop100 --partscan $@
 
-	# 创建 minux 文件系统
+	# 创建 minux 文件系统-1版本是1 -n文件名长度
 	sudo mkfs.minix -1 -n 14 /dev/loop100p1
 
 	# 挂载文件系统
