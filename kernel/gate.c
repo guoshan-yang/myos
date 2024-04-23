@@ -38,6 +38,9 @@ task_t *task = NULL;
 
 static u32 sys_test()
 {
+    extern void dir_test();
+    dir_test();
+
     char ch;
     device_t *device;
 
@@ -48,18 +51,6 @@ static u32 sys_test()
     device = device_find(DEV_CONSOLE, 0);
     assert(device);
     device_write(device->dev, &ch, 1, 0, 0);
-
-//    device = device_find(DEV_IDE_DISK, 0);
-//    assert(device);
-//
-//    buffer_t *buf = bread(device->dev, 0); // 读取主引导块
-//
-//    char *data = buf->data + SECTOR_SIZE;
-//    memset(data, 0x5a, SECTOR_SIZE);
-//
-//    buf->dirty = true;
-//
-//    brelse(buf);
 
     return 255;
 }
