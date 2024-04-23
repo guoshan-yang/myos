@@ -73,10 +73,11 @@ void test_thread()
 {
     set_interrupt_state(true);
 //    test();
-    LOGK("test finished of task %d\n", getpid());
+//    LOGK("test finished of task %d\n", getpid());
+    mode_t mode = umask(0002);
     while (true)
     {
-        test();
+//        test();
         sleep(10);
     }
 }
