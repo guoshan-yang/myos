@@ -66,6 +66,17 @@ $(BUILD)/slave.img: $(SRC)/config/slave.fdisk
 	# 卸载设备
 	sudo losetup -d /dev/loop100
 
+.PHONY: mount0
+mount0: $(BUILD)/hd.img
+	echo "100200" | sudo -S losetup /dev/loop100 --partscan $<
+	echo "100200" | sudo -S mount /dev/loop100p1 /mnt
+	echo "100200" | sudo -S chown ${USER} /mnt
+
+.PHONY: umount0
+umount0: /dev/loop100
+	-echo "100200" | sudo -S umount /mnt
+	-echo "100200" | sudo -S losetup -d $<
+
 IMAGES:= $(BUILD)/hd.img \
 		$(BUILD)/slave.img
 
