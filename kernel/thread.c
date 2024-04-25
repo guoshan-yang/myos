@@ -72,12 +72,12 @@ void init_thread()
 void test_thread()
 {
     set_interrupt_state(true);
-//    test();
-//    LOGK("test finished of task %d\n", getpid());
-//    mode_t mode = umask(0002);
-    test();
+    // test();
+    mkdir("/world.txt", 0755);
+    rmdir("/empty");
     while (true)
     {
+        test();
         sleep(10);
     }
 }

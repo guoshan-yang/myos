@@ -25,6 +25,7 @@ $(BUILD)/hd.img: ${BUILD}/boot/boot.bin ${BUILD}/boot/loader.bin \
 	echo "100200" | sudo -S chown ${USER} /mnt
 
 	# 创建目录
+	mkdir -p /mnt/empty
 	mkdir -p /mnt/home
 	mkdir -p /mnt/d1/d2/d3/d4
 
