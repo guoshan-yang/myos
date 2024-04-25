@@ -50,6 +50,8 @@ typedef enum std_fd_t
     stderr,
 } std_fd_t;
 
+typedef int32 off_t; // 文件偏移
+
 // 内核魔数，用于校验错误
 #define KERNEL_MAGIC 0x20220205
 
