@@ -72,13 +72,13 @@ void init_thread()
 void test_thread()
 {
     set_interrupt_state(true);
-     test();
+//     test();
 //    link("/hello.txt", "/world.txt");
 //    unlink("/hello.txt");
 
     while (true)
     {
-//        test();
+        test();
         sleep(10);
     }
 }

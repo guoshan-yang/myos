@@ -51,6 +51,29 @@ static task_t *get_free_task()
     panic("No more tasks");
 }
 
+fd_t task_get_fd(task_t *task)
+{
+    fd_t i;
+    // 从3开始找，0,1,2表示标准输出，标准输入，标准错误
+    for (i = 3; i < TASK_FILE_NR; i++)
+    {
+        if (!task->files[i])
+            break;
+    }
+    if (i == TASK_FILE_NR)
+    {
+        panic("Exceed task max open files.");
+    }
+    return i;
+}
+
+void task_put_fd(task_t *task, fd_t fd)
+{
+    if (fd < 3)
+        return;
+    assert(fd < TASK_FILE_NR);
+    task->files[fd] = NULL;
+}
 
 // 获取进程 id
 pid_t sys_getpid()
