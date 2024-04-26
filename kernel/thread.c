@@ -57,12 +57,13 @@ lock_t lock;
 
 extern u32 keyboard_read(char *buf, u32 count);
 
+extern void dev_init();
+
 void init_thread()
 {
     char temp[100]; // 为栈顶有足够的空间
 
-//    set_interrupt_state(true);
-//    test();
+    dev_init();
 
     task_to_user_mode(user_init_thread);
 }
