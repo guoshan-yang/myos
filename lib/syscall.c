@@ -149,6 +149,15 @@ mode_t umask(mode_t mask)
     return _syscall1(SYS_NR_UMASK, (u32)mask);
 }
 
+int mount(char *devname, char *dirname, int flags)
+{
+    return _syscall3(SYS_NR_MOUNT, (u32)devname, (u32)dirname, (u32)flags);
+}
+
+int umount(char *target)
+{
+    return _syscall1(SYS_NR_UMOUNT, (u32)target);
+}
 
 int mkdir(char *pathname, int mode)
 {
