@@ -65,6 +65,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/fs/inode.o \
 	$(BUILD)/fs/namei.o \
 	$(BUILD)/fs/file.o \
+	$(BUILD)/fs/stat.o \
 	$(BUILD)/lib/bitmap.o \
 	$(BUILD)/lib/string.o \
 	$(BUILD)/lib/stdlib.o \
