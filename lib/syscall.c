@@ -99,6 +99,11 @@ int write(fd_t fd, char *buf, int len)
     return _syscall3(SYS_NR_WRITE, fd, (u32)buf, len);
 }
 
+int lseek(fd_t fd, off_t offset, int whence)
+{
+    return _syscall3(SYS_NR_LSEEK, fd, offset, whence);
+}
+
 pid_t getpid()
 {
     return _syscall0(SYS_NR_GETPID);
