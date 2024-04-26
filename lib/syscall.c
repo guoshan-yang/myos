@@ -104,6 +104,21 @@ int lseek(fd_t fd, off_t offset, int whence)
     return _syscall3(SYS_NR_LSEEK, fd, offset, whence);
 }
 
+char *getcwd(char *buf, size_t size)
+{
+    return (char *)_syscall2(SYS_NR_GETCWD, (u32)buf, (u32)size);
+}
+
+int chdir(char *pathname)
+{
+    return _syscall1(SYS_NR_CHDIR, (u32)pathname);
+}
+
+int chroot(char *pathname)
+{
+    return _syscall1(SYS_NR_CHROOT, (u32)pathname);
+}
+
 pid_t getpid()
 {
     return _syscall0(SYS_NR_GETPID);
