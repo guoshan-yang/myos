@@ -60,6 +60,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/device.o \
 	$(BUILD)/kernel/buffer.o \
 	$(BUILD)/kernel/system.o \
+	$(BUILD)/kernel/ramdisk.o \
 	$(BUILD)/fs/super.o \
 	$(BUILD)/fs/bmap.o \
 	$(BUILD)/fs/inode.o \
