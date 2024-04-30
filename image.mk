@@ -3,6 +3,7 @@ $(BUILD)/hd.img: ${BUILD}/boot/boot.bin ${BUILD}/boot/loader.bin \
 		$(BUILD)/system.bin \
     	$(BUILD)/system.map \
     	$(SRC)/config/master.fdisk \
+    	$(BUILD)/builtin/hello.out \
 
 	$(shell rm -rf $(BUILD)/$(HD_IMG_NAME))
 	yes | bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat $(BUILD)/$(HD_IMG_NAME)
@@ -30,6 +31,9 @@ $(BUILD)/hd.img: ${BUILD}/boot/boot.bin ${BUILD}/boot/loader.bin \
 
 	# 创建文件
 	echo "hello onix!!!, from root direcotry file..." > /mnt/hello.txt
+
+	# 拷贝程序
+	cp $(BUILD)/builtin/hello.out /mnt/hello.out
 
 	# 卸载文件系统
 	echo "100200" | sudo -S umount /mnt

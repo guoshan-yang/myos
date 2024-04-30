@@ -28,6 +28,9 @@ $(BUILD)/%.o: %.c
 	$(shell mkdir -p $(dir $@))
 	gcc $(CFLAGS) $(DEBUG) -c $< -o $@
 
+$(BUILD)/builtin/%.out: $(BUILD)/builtin/%.o
+	ld -m elf_i386 -static $^ -o $@ -Ttext 0x1001000
+
 LDFLAGS:= -m elf_i386 \
 		-static \
 		-Ttext $(ENTRYPOINT)\
@@ -61,6 +64,7 @@ $(BUILD)/kernel/kernel.bin: $(BUILD)/kernel/entry_kernel.o \
 	$(BUILD)/kernel/buffer.o \
 	$(BUILD)/kernel/system.o \
 	$(BUILD)/kernel/ramdisk.o \
+	$(BUILD)/kernel/execve.o \
 	$(BUILD)/fs/super.o \
 	$(BUILD)/fs/bmap.o \
 	$(BUILD)/fs/inode.o \
